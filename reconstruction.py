@@ -1,7 +1,7 @@
-import numpy as np
-from math import pi, exp
-import scipy.linalg
 import cv2
+import numpy as np
+import scipy.linalg
+from math import pi, exp
 
 
 class Reconstruction:
@@ -19,14 +19,14 @@ class Reconstruction:
                  background_vector=None,
                  model_visibility=None,
                  visibility_outerior=None,
-                 fspl = None):
-        '''
+                 fspl=None):
+        """
         :param effect_matrix:
         :param background_vector:
         :param model_visibility:
         :param visibility_outerior:
         :param fspl:
-        '''
+        """
 
         self.effect_matrix = np.genfromtxt(effect_matrix, delimiter=',')
         self.background_vector = self.__m2v(np.genfromtxt(background_vector, delimiter=','))
@@ -35,16 +35,16 @@ class Reconstruction:
         self.fspl = self.__m2v(np.genfromtxt(fspl, delimiter=','))
 
     def tikhonov_regularization(self, measure_vector):
-        '''
+        """
         :param measure_vector:
         :return:
-        '''
+        """
         measure_vector = self.set_measure_vector(measure_vector)
-        F_tikhonov = abs(measure_vector - self.background_vector)
+        f_tikhonov = abs(measure_vector - self.background_vector)
         tikhonov_helper = (np.dot(self.effect_matrix, self.effect_matrix.transpose())).shape
         tikhonov_temp = (np.mat(self.effect_matrix) * np.mat(self.effect_matrix.transpose())
                          + self.lambda_parameter * np.eye(tikhonov_helper[0], tikhonov_helper[1]))
-        tikhonov_temp2 = np.linalg.solve(tikhonov_temp, F_tikhonov)
+        tikhonov_temp2 = np.linalg.solve(tikhonov_temp, f_tikhonov)
         tikhonov_temp3 = np.reshape(tikhonov_temp2, (120, 1))
 
         tikhonov = np.mat(self.effect_matrix.transpose()) * np.mat(tikhonov_temp3)
@@ -76,32 +76,32 @@ class Reconstruction:
         return svd
 
     def preparing(self, reconstruction):
-        '''
+        """
         :param reconstruction:
         :return:
-        '''
-        MOD_fov = np.zeros([63, 65])
-        RECON = MOD_fov
-        RECON = np.matrix.flatten(RECON, order='F')
+        """
+        mod_fov = np.zeros([63, 65])
+        recon = mod_fov
+        recon = np.matrix.flatten(recon, order='F')
 
         # reading model visibility
-        #df = pd.read_csv('const/model/mod_fovIdx_room.csv', header=None)
-        # MOD_fovIdx = df.values
+        # df = pd.read_csv('const/model/mod_fovIdx_room.csv', header=None)
+        # mod_fov_idx = df.values
         size_model_vis = len(self.model_visibility)
-        MOD_fovIdx = np.reshape(self.model_visibility,(size_model_vis,1),order='F').astype(int)
-        MOD_fovIdx = MOD_fovIdx - 1
+        mod_fov_idx = np.reshape(self.model_visibility, (size_model_vis, 1), order='F').astype(int)
+        mod_fov_idx = mod_fov_idx - 1
 
         # preparing space for matrix
-        RECON[MOD_fovIdx] = reconstruction
-        x = np.reshape(RECON, (63, 65), order='F')
+        recon[mod_fov_idx] = reconstruction
+        x = np.reshape(recon, (63, 65), order='F')
         gg = self.__mex_hat_filtr(3, 3)
 
         # reading visibility outerior
         # df = pd.read_csv('const/model/mod_outerior_room.csv', header=None)
-        # MOD_outerior = df.values
+        # mod_outerior = df.values
         size_vis_out = len(self.visibility_outerior)
-        MOD_outerior = np.reshape(self.visibility_outerior,(size_vis_out,1),order='F').astype(int)
-        MOD_outerior = MOD_outerior - 1
+        mod_outerior = np.reshape(self.visibility_outerior, (size_vis_out, 1), order='F').astype(int)
+        mod_outerior = mod_outerior - 1
 
         # rotation, filtration, normalization
         x = np.flip(np.rot90(x))
@@ -112,15 +112,16 @@ class Reconstruction:
         normalized[normalized < 0.75] = 0
 
         # making a circle
-        normalized = np.matrix.flatten(normalized, order='C')
+        normalized: np.ndarray = np.matrix.flatten(normalized, order='C')
 
         # deleteing outerior
-        normalized[MOD_outerior] = 1
+        normalized[mod_outerior] = 1
         normalized = np.reshape(normalized, (63, 65), order='F')
 
         return np.rot90(np.flipud(normalized), -1)
 
-    def __mex_hat_filtr(self, n, sig):
+    @staticmethod
+    def __mex_hat_filtr(n, sig):
         pom_n = 2 * n + 1
         mex_hat = np.zeros([pom_n, pom_n])
         for xd in range(-n, n + 1):
@@ -132,7 +133,8 @@ class Reconstruction:
 
         return mex_hat
 
-    def __m2v(self, matrix):
+    @staticmethod
+    def __m2v(matrix):
         np.fill_diagonal(matrix, 0)
         u_temp = np.triu(matrix)
         l_temp = np.tril(matrix)
