@@ -149,4 +149,6 @@ class Reconstruction:
         self.lambda_parameter = lambda_value
 
     def set_measure_vector(self, m_vector):
-        return self.__m2v(np.genfromtxt(m_vector, delimiter=','))
+        # In case of reading file
+        # return self.__m2v(np.genfromtxt(m_vector, delimiter=','))
+        return self.__m2v(np.asarray(m_vector))
