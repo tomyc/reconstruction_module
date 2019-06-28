@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import scipy.linalg
-import scipy.signal
 from math import pi, exp
 
 
@@ -105,11 +104,11 @@ class Reconstruction:
         mod_outerior = mod_outerior - 1
 
         # rotation, filtration, normalization
-        #x = np.flip(np.rot90(x))
-        #dst = cv2.filter2D(x, -1, gg)
-        dst = scipy.signal.convolve2d(x, gg)
+        x = np.flip(np.rot90(x))
+        dst = cv2.filter2D(x, -1, gg)
+
         out = np.zeros(dst.shape, np.double)
-        normalized = cv2.normalize(dst, out, 1.0, 0.0, cv2.NORM_MINMAX, dtype=cv2.CV_64F)
+        normalized = cv2.normalize(dst, out, 1.0, 0.0, cv2.NORM_MINMAX)
         normalized[normalized < 0.75] = 0
 
         # making a circle
@@ -119,7 +118,7 @@ class Reconstruction:
         normalized[mod_outerior] = 1
         normalized = np.reshape(normalized, (63, 65), order='F')
 
-        return normalized #np.rot90(np.flipud(normalized), -1)
+        return np.rot90(np.flipud(normalized), -1)
 
     @staticmethod
     def __mex_hat_filtr(n, sig):
@@ -150,6 +149,4 @@ class Reconstruction:
         self.lambda_parameter = lambda_value
 
     def set_measure_vector(self, m_vector):
-        # In case of reading file
-        # return self.__m2v(np.genfromtxt(m_vector, delimiter=','))
-        return self.__m2v(np.asarray(m_vector))
+        return self.__m2v(np.genfromtxt(m_vector, delimiter=','))
