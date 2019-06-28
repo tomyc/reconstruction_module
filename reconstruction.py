@@ -87,6 +87,7 @@ class Reconstruction:
         # reading model visibility
         # df = pd.read_csv('const/model/mod_fovIdx_room.csv', header=None)
         # mod_fov_idx = df.values
+        # changes
         size_model_vis = len(self.model_visibility)
         mod_fov_idx = np.reshape(self.model_visibility, (size_model_vis, 1), order='F').astype(int)
         mod_fov_idx = mod_fov_idx - 1
