@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import scipy.linalg
+import scipy.signal
 from math import pi, exp
 
 
@@ -87,7 +88,6 @@ class Reconstruction:
         # reading model visibility
         # df = pd.read_csv('const/model/mod_fovIdx_room.csv', header=None)
         # mod_fov_idx = df.values
-        # changes
         size_model_vis = len(self.model_visibility)
         mod_fov_idx = np.reshape(self.model_visibility, (size_model_vis, 1), order='F').astype(int)
         mod_fov_idx = mod_fov_idx - 1
@@ -105,11 +105,11 @@ class Reconstruction:
         mod_outerior = mod_outerior - 1
 
         # rotation, filtration, normalization
-        x = np.flip(np.rot90(x))
-        dst = cv2.filter2D(x, -1, gg)
-
+        #x = np.flip(np.rot90(x))
+        #dst = cv2.filter2D(x, -1, gg)
+        dst = scipy.signal.convolve2d(x,gg)
         out = np.zeros(dst.shape, np.double)
-        normalized = cv2.normalize(dst, out, 1.0, 0.0, cv2.NORM_MINMAX)
+        normalized = cv2.normalize(dst, out, 1.0, 0.0, cv2.NORM_MINMAX, dtype=cv2.CV_64F)
         normalized[normalized < 0.75] = 0
 
         # making a circle
@@ -119,7 +119,7 @@ class Reconstruction:
         normalized[mod_outerior] = 1
         normalized = np.reshape(normalized, (63, 65), order='F')
 
-        return np.rot90(np.flipud(normalized), -1)
+        return normalized #np.rot90(np.flipud(normalized), -1)
 
     @staticmethod
     def __mex_hat_filtr(n, sig):
