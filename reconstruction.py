@@ -108,8 +108,8 @@ class Reconstruction:
         #x = np.flip(np.rot90(x))
         #dst = cv2.filter2D(x, -1, gg)
         dst = scipy.signal.convolve2d(x,gg)
-        out = np.zeros(dst.shape, np.double)
-        normalized = cv2.normalize(dst, out, 1.0, 0.0, cv2.NORM_MINMAX, dtype=cv2.CV_64F)
+        out = np.zeros(x.shape, np.double)
+        normalized = cv2.normalize(x, out, 1.0, 0.0, cv2.NORM_MINMAX, dtype=cv2.CV_64F)
         normalized[normalized < 0.75] = 0
 
         # making a circle
