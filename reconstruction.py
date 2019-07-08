@@ -95,7 +95,7 @@ class Reconstruction:
         # preparing space for matrix
         recon[mod_fov_idx] = reconstruction
         x = np.reshape(recon, (63, 65), order='F')
-        gg = self.__mex_hat_filtr(3, 3)
+        gg = self.__mex_hat_filtr(3, 7)
 
         # reading visibility outerior
         # df = pd.read_csv('const/model/mod_outerior_room.csv', header=None)
@@ -106,11 +106,11 @@ class Reconstruction:
 
         # rotation, filtration, normalization
         #x = np.flip(np.rot90(x))
-        #dst = cv2.filter2D(x, -1, gg)
-        dst = scipy.signal.convolve2d(x,gg)
-        out = np.zeros(x.shape, np.double)
-        normalized = cv2.normalize(x, out, 1.0, 0.0, cv2.NORM_MINMAX, dtype=cv2.CV_64F)
-        normalized[normalized < 0.75] = 0
+        dst = cv2.filter2D(x, -1, gg)
+        # dst = scipy.signal.convolve2d(x,gg)
+        out = np.zeros(dst.shape, np.double)
+        normalized = cv2.normalize(dst, out, 1.0, 0.0, cv2.NORM_MINMAX, dtype=cv2.CV_64F)
+        normalized[normalized < 0.85] = 0
 
         # making a circle
         normalized: np.ndarray = np.matrix.flatten(normalized, order='C')
