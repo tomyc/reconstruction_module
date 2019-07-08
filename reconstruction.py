@@ -136,6 +136,10 @@ class Reconstruction:
 
     @staticmethod
     def __m2v(matrix):
+        for x in range(0, 15):
+            for y in range(0, 15):
+                if matrix[x, y] >= 240 or matrix[x, y] == 0:
+                    matrix[x, y] = matrix[x, y-1]
         np.fill_diagonal(matrix, 0)
         u_temp = np.triu(matrix)
         l_temp = np.tril(matrix)
