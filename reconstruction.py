@@ -118,7 +118,7 @@ class Reconstruction:
         normalized[normalized < 0.75] = 0
 
         # making a circle
-        normalized = np.matrix.flatten(normalized, order='C')
+        normalized = np.matrix.flatten(normalized, order='F')
 
         # deleteing outerior
         normalized[MOD_outerior] = 1
