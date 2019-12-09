@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='reconstruction_module',
-    version='0.0.1',
+    version='0.0.2',
     packages=[''],
     url='',
     license='',
